@@ -5,5 +5,5 @@ This script builds Ubuntu deb packages patching the source code of the latest li
 
 You need to install the libdrm2 and libdrm-common debs and mark them as hold so they dont get overwritten. If there's a new libdrm2 version this script will generate patched ones from the latest source packages.
 
-In releases you can get the prebuilt patched packages.
+In releases you can get the prebuilt patched packages for Ubuntu 24.04.
 
