@@ -1,0 +1,58 @@
+Accelerate device open on rootless X11
+
+Patch so libdrm doesnt sleep 3 seconds when opening apps in Xorg when running rootless
+in a VMWare guest (and possible other virtualization engines)
+
+References:
+https://discussion.fedoraproject.org/t/x11-huge-delay-for-each-process-vmware-workstation-regression/95708/24
+https://github.com/shoffmeister/drm/commit/db85c9dc0553414ca77d5442fb7c203f550f267a
+
+
+--- a/xf86drm.c
++++ b/xf86drm.c
+@@ -1249,6 +1249,31 @@
+     return drmOpenWithType(name, busid, DRM_NODE_PRIMARY);
+ }
+ 
++// Accelerate device open on rootless X11
++
++static int drmAcquireSingleStaticDevice(int type)
++{
++    int fd;
++    int base = drmGetMinorBase(type);
++
++    if (base < 0)
++        return -1;
++
++    drmMsg("drmAcquireSingleStaticDevice: scanning up to %d minor\n", DRM_MAX_MINOR);
++
++    for (int i = base; i < base + DRM_MAX_MINOR; i++) {
++        fd = drmOpenMinor(i, 1, type);
++        drmMsg("drmAcquireSingleStaticDevice: drmOpenMinor returns %d\n", fd);
++
++        if (fd >= 0) {
++            return fd;
++        }
++
++    }
++
++    return -1;
++}
++
+ /**
+  * Open the DRM device with specified type.
+  *
+@@ -1276,6 +1301,13 @@
+         }
+     }
+ 
++    {
++        int fd = drmAcquireSingleStaticDevice(type);
++        if (fd >= 0)
++            return fd;
++        return fd;
++    }
++
+     if (busid) {
+         int fd = drmOpenByBusid(busid, type);
+         if (fd >= 0)
