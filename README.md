@@ -1,5 +1,4 @@
-# Fix for the startup delay on X11 using KDE Plasma specially
-
+# Fix for the startup delay on X11 using KDE Plasma on VMWare (possibly others too)
 Patch based on this commit https://github.com/shoffmeister/drm/commit/db85c9dc0553414ca77d5442fb7c203f550f267a
 
 This script builds Ubuntu deb packages patching the source code of the latest libdrm2.
